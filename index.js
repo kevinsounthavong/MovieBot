@@ -179,6 +179,7 @@ dialog.onDefault(builder.DialogAction.send('Sorry. I did not understand what you
 
 bot.dialog('ask', [
     function(session, args, next) {
+        bot.dialog('info', dialog);
         builder.Prompts.text(session, "What do you want to ask about " + args.data + "?");
         session.beginDialog('info')
     }
