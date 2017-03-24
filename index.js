@@ -125,7 +125,7 @@ function searchMovie(session, results) {
                         ])
                         .buttons([
                             builder.CardAction.openUrl(session, pageIMDB, 'IMDB Page'),
-                            builder.CardAction.dialogAction(session, "info", title, "Ask me!")
+                            builder.CardAction.dialogAction(session, "ask", title, "Ask me!")
                         ])
 
                     cards.push(card);
@@ -155,29 +155,33 @@ function searchMovie(session, results) {
 var LUIS_MODEL_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/57f90955-7f77-4505-bacc-c703fb2f2df5?subscription-key=3ec130c93aac432d99d4e4d32c2c8ce9&staging=true&verbose=true&q=";
 
 var recognizer = new builder.LuisRecognizer(LUIS_MODEL_URL);
-//bot.recognizer(recognizer);
+
 var dialog = new builder.IntentDialog({ recognizers: [recognizer] });
-bot.dialog('/info', dialog);
+bot.dialog('info', dialog);
 
-//add intent handlers
-dialog.matches('SearchCast', builder.DialogAction.send('SearchCast calling'));
-dialog.matches('SearchCrew', builder.DialogAction.send('SearchCrew calling'));
-dialog.onDefault(builder.DialogAction.send('Sorry. I did not understand what you said.'));
-/*
-//Create a dialog and bind it to a global action
-bot.dialog('/info', [
+dialog.matches('SearchCast', [
     function(session, args, next) {
-        builder.Prompts.text(session, "What do you want to know about " + args.data + "?");
-        //session.endDialog("You wanted to know more about the movie %s!", args.data);
-        //Try extracting entites
-
-        var movieComponentEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'MovieComponent');
-        var personEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'Person');
-        var actionEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'action');
-
-        session.endDialog('Found these entities! movieComponentEntity = ' + movieComponentEntity + ': personEntity = ' + personEntity + ': ' + 'actionEntity = ' + actionEntity);
+        builder.DialogAction.send('SearchCast calling');
+        session.endDialog("Ending SearchCast");
     }
 
-]);*/
+]);
 
-bot.beginDialogAction('info', '/info');
+dialog.matches('SearchCrew', [
+    function(session, args, next) {
+        builder.DialogAction.send('SearchCast calling');
+        session.endDialog("Ending SearchCast");
+    }
+
+]);
+
+dialog.onDefault(builder.DialogAction.send('Sorry. I did not understand what you said.'));
+
+bot.dialog('ask', [
+    function(session, args, next) {
+        builder.Prompts.text(session, "What do you want to ask about " + args.data + "?");
+        session.beginDialog('info')
+    }
+]);
+bot.beginDialogAction('ask', 'ask');
+//bot.beginDialogAction('info', 'info');
