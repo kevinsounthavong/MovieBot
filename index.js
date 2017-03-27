@@ -152,7 +152,7 @@ function searchMovie(session, results) {
     });
 }
 
-var LUIS_MODEL_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/57f90955-7f77-4505-bacc-c703fb2f2df5?subscription-key=3ec130c93aac432d99d4e4d32c2c8ce9&staging=true&verbose=true&q=";
+var LUIS_MODEL_URL = "https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/57f90955-7f77-4505-bacc-c703fb2f2df5?subscription-key=3ec130c93aac432d99d4e4d32c2c8ce9&staging=true&verbose=true&timezoneOffset=-5.0&q=";
 
 var recognizer = new builder.LuisRecognizer(LUIS_MODEL_URL);
 
@@ -162,6 +162,26 @@ bot.dialog('info', dialog);
 dialog.matches('SearchCast', [
     function(session, args, next) {
         builder.DialogAction.send('SearchCast calling');
+        args.e
+        //try extracting entities
+        var movieComponentEntity = builder.EntityRecognizer.findEntity(args.entities,'MovieComponent');
+        var personEntity = builder.EntityRecognizer.findEntity(args.entities,'Person');
+        var actionEntity = builder.EntityRecognizer.findEntity(args.entities,'action');
+
+        if (personEntity)
+        {
+            session.send("Found personEntity = "+personEntity.entity);
+        }
+
+        if(movieComponentEntity)
+        {
+            session.send("Found movieComponentEntity = "+movieComponentEntity.entity);
+        }
+
+        if(actionEntity)
+        {
+            session.send("Found actionEntity = "+actionEntity.entity)
+        }
         session.endDialog("Ending SearchCast");
     }
 
@@ -169,8 +189,8 @@ dialog.matches('SearchCast', [
 
 dialog.matches('SearchCrew', [
     function(session, args, next) {
-        builder.DialogAction.send('SearchCast calling');
-        session.endDialog("Ending SearchCast");
+        builder.DialogAction.send('SearchCrew calling');
+        session.endDialog("Ending SearchCrew");
     }
 
 ]);
@@ -179,10 +199,8 @@ dialog.onDefault(builder.DialogAction.send('Sorry. I did not understand what you
 
 bot.dialog('ask', [
     function(session, args, next) {
-        bot.dialog('info', dialog);
-        builder.Prompts.text(session, "What do you want to ask about " + args.data + "?");
+        session.send("What do you want to ask about the movie "+args.data+"? ");
         session.beginDialog('info')
     }
 ]);
 bot.beginDialogAction('ask', 'ask');
-//bot.beginDialogAction('info', 'info');
